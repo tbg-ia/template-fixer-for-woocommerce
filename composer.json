@@ -1,0 +1,34 @@
+{
+    "name": "keepxo/template-fixer-for-woocommerce",
+    "description": "Automatically fixes outdated WooCommerce template files while preserving theme customizations",
+    "type": "wordpress-plugin",
+    "license": "GPL-2.0-or-later",
+    "authors": [
+        {
+            "name": "KeepXO Development Team",
+            "email": "developer@keepxo.us",
+            "homepage": "https://keepxo.us"
+        }
+    ],
+    "require": {
+        "php": ">=7.4",
+        "composer/installers": "^1.0 || ^2.0"
+    },
+    "require-dev": {
+        "dealerdirect/phpcodesniffer-composer-installer": "^0.7.0",
+        "wp-coding-standards/wpcs": "^2.3",
+        "phpcompatibility/phpcompatibility-wp": "^2.1"
+    },
+    "scripts": {
+        "phpcs": "phpcs --standard=WordPress-Core,WordPress-Docs,WordPress-Extra .",
+        "phpcbf": "phpcbf --standard=WordPress-Core,WordPress-Docs,WordPress-Extra .",
+        "lint": "@phpcs",
+        "format": "@phpcbf"
+    },
+    "config": {
+        "allow-plugins": {
+            "dealerdirect/phpcodesniffer-composer-installer": true,
+            "composer/installers": true
+        }
+    }
+}
