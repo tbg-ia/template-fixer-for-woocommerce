@@ -1,0 +1,68 @@
+# WordPress Plugin Development
+# ============================
+
+# Backup files
+*.zip
+*.tar.gz
+*.backup
+*.bak
+*~
+
+# IDE and Editor files
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+.DS_Store
+Thumbs.db
+
+# Development files
+node_modules/
+npm-debug.log
+yarn-error.log
+package-lock.json
+yarn.lock
+
+# Build files
+/build/
+/dist/
+/vendor/
+
+# Testing
+/tests/reports/
+phpunit.xml
+.phpunit.result.cache
+
+# Logs
+*.log
+error_log
+debug.log
+
+# WordPress specific
+wp-config.php
+.htaccess
+
+# Environment files
+.env
+.env.*
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Desktop.ini
+
+# Temporary files
+*.tmp
+*.temp
+.cache/
+
+# Documentation build
+/docs/_build/
+
+# Local development
+/local-config.php
+/config/local.php

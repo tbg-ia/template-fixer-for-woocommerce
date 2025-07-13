@@ -1,0 +1,37 @@
+# Template Fixer for WooCommerce POT File
+# Copyright (C) 2024 KeepXO Development Team
+# This file is distributed under the same license as the Template Fixer for WooCommerce plugin.
+msgid ""
+msgstr ""
+"Project-Id-Version: Template Fixer for WooCommerce 2.0.0\n"
+"Report-Msgid-Bugs-To: https://keepxo.us/support\n"
+"POT-Creation-Date: 2024-12-01 12:00+0000\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: WP-CLI 2.5.0\n"
+"X-Domain: template-fixer-for-woocommerce\n"
+
+#: template-fixer-for-woocommerce.php:41
+msgid "This plugin requires WooCommerce to be installed and activated."
+msgstr ""
+
+#: includes/class-admin-interface.php:132
+msgid "Scanning templates..."
+msgstr ""
+
+#: includes/class-admin-interface.php:133
+msgid "Updating templates..."
+msgstr ""
+
+#: includes/class-admin-interface.php:134
+msgid "Are you sure you want to update these templates?"
+msgstr ""
+
+#: includes/class-admin-interface.php:135
+msgid "Create backup of all templates?"
+msgstr ""

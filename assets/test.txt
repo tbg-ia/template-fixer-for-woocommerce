@@ -1,0 +1,235 @@
+¡Perfecto! Crear tu propia captura es mucho mejor. Te doy las especificaciones exactas para que la hagas como
+  quieras:
+
+  🎨 Especificaciones para Banner Retina (1544x500)
+
+  Dimensiones Exactas:
+
+  - Ancho: 1544 píxeles
+  - Alto: 500 píxeles
+  - Ratio: 3.088:1
+
+  Diseño Requerido:
+
+  Fondo:
+
+  - Gradiente: #667eea → #764ba2
+  - Dirección: 45° diagonal (azul claro → morado)
+
+  Texto Principal:
+
+  - Título: "Template Fixer for WooCommerce"
+  - Font: Roboto Bold o Montserrat Bold
+  - Tamaño: 64px
+  - Color: #FFFFFF (blanco)
+  - Posición: Centro-izquierda
+
+  Subtítulo:
+
+  - Texto: "Keep your WooCommerce templates updated & secure"
+  - Font: Roboto Regular
+  - Tamaño: 36px
+  - Color: #F8F9FA (blanco suave)
+
+  Features:
+
+  - Texto: "✓ Auto-Updates      ✓ Smart Backups      ✓ Zero Downtime"
+  - Font: Roboto Medium
+  - Tamaño: 28px
+  - Color: #FEE140 (amarillo)
+
+  Iconos:
+
+  - Izquierda: 🔧 (herramienta) - tamaño 96px
+  - Derecha: ⚙️ (engranaje) - tamaño 84px, color #FEE140
+
+  Herramientas Recomendadas:
+
+  Canva (Más fácil):
+
+  1. Crear diseño personalizado 1544x500px
+  2. Fondo → Gradiente → Personalizado
+  3. Agregar texto con especificaciones de arriba
+  4. Descargar como JPG calidad alta
+
+  Photoshop/GIMP:
+
+  1. Nuevo documento 1544x500px
+  2. Gradiente con colores exactos
+  3. Texto con fuentes especificadas
+  4. Exportar JPG calidad 85%
+
+  Figma (Gratis):
+
+  1. Frame 1544x500px
+  2. Linear gradient 45°
+  3. Typography según specs
+  4. Export → JPG
+
+  Archivo Final:
+
+  - Nombre: banner-1544x500.jpg
+  - Tamaño: <100KB (optimizar si es necesario)
+  - Ubicación: assets-wordpress-org/
+
+  ¿Con qué herramienta prefieres crearlo? ¿Canva, Photoshop, Figma u otra?
+
+> donde agrego la imag i icon inidicame lugar o carpeta
+
+● 📁 Ubicaciones para Guardar los Assets
+
+  Para Assets Finales (WordPress.org SVN):
+
+  C:\xampp\htdocs\keepxo.us\wp-content\plugins\template-fixer-for-woocommerce\assets-wordpress-org\
+
+  Estructura completa que necesitas crear:
+
+  assets-wordpress-org/
+  ├── banner-772x250.jpg      ← Banner principal (optimizado)
+  ├── banner-1544x500.jpg     ← Banner retina (el que vas a crear)
+  ├── icon-256x256.png        ← Icono principal PNG transparente
+  ├── icon-512x512.png        ← Icono retina PNG transparente
+  ├── screenshot-1.jpg        ← Dashboard
+  ├── screenshot-2.jpg        ← Scanner results
+  ├── screenshot-3.jpg        ← Backups
+  ├── screenshot-4.jpg        ← Settings
+  └── screenshot-5.jpg        ← Notifications
+
+  Ruta completa exacta:
+
+  C:\xampp\htdocs\keepxo.us\wp-content\plugins\template-fixer-for-woocommerce\assets-wordpress-org\banner-1544x500.
+  jpg
+
+  ¿Ya existe la carpeta?
+
+  Sí, ya la creé. Puedes verificar que existe en:
+  - Ve a: C:\xampp\htdocs\keepxo.us\wp-content\plugins\template-fixer-for-woocommerce\
+  - Busca la carpeta: assets-wordpress-org
+  - Guarda ahí todos los assets finales
+
+  Assets actuales que tienes:
+
+  - En assets/banner-772x250.jpg (necesita optimización y copia)
+  - En assets/icon-256x256.jpg (necesita conversión a PNG)
+
+  Proceso recomendado:
+
+  1. Crear todos los assets nuevos
+  2. Guardar directamente en assets-wordpress-org/
+  3. Copiar y optimizar los actuales también a esa carpeta
+
+  ¿Quieres que cree el banner retina directamente en esa ubicación?
+
+> crea los nombre para cada imagen banner icon
+
+● 📝 Nombres Exactos para Cada Asset
+
+  🎨 BANNERS:
+
+  Banner Principal:
+
+  banner-772x250.jpg
+
+  Banner Retina:
+
+  banner-1544x500.jpg
+
+  ---
+  🔧 ICONOS:
+
+  Icono Principal:
+
+  icon-256x256.png
+
+  Icono Retina:
+
+  icon-512x512.png
+
+  ---
+  📸 SCREENSHOTS:
+
+  Screenshot 1 - Dashboard:
+
+  screenshot-1.jpg
+
+  Screenshot 2 - Scanner Results:
+
+  screenshot-2.jpg
+
+  Screenshot 3 - Backup Management:
+
+  screenshot-3.jpg
+
+  Screenshot 4 - Settings Panel:
+
+  screenshot-4.jpg
+
+  Screenshot 5 - Notifications:
+
+  screenshot-5.jpg
+
+  ---
+  📋 Lista Completa para Copiar:
+
+  banner-772x250.jpg
+  banner-1544x500.jpg
+  icon-256x256.png
+  icon-512x512.png
+  screenshot-1.jpg
+  screenshot-2.jpg
+  screenshot-3.jpg
+  screenshot-4.jpg
+  screenshot-5.jpg
+
+  ⚠️ Importante:
+
+  - Banners: Formato JPG
+  - Iconos: Formato PNG (con transparencia)
+  - Screenshots: Formato JPG
+  - Nombres: Exactamente como están escritos (sin espacios, guiones medios)
+  - Ubicación: assets-wordpress-org/
+
+  🎯 Ejemplo de ruta completa:
+
+
+¡Perfecto! Entendido. Tú te encargarás de:
+
+  1. Crear banner retina banner-1544x500.jpg (2x del actual)
+  2. Convertir icono a PNG transparente icon-256x256.png
+  3. Crear icono retina icon-512x512.png
+  4. Optimizar banner actual para que sea <100KB
+  5. Capturar los 5 screenshots del plugin
+
+  📋 Resumen de lo que ya está listo:
+
+  ✅ Plugin Completamente Preparado:
+
+  - Código 100% en inglés - Todas las traducciones aplicadas
+  - ZIP de producción listo - template-fixer-for-woocommerce-v2.0.0.zip
+  - Documentación completa - Readme.txt optimizado para WordPress.org
+  - Licencia GPL incluida - LICENSE.txt agregado
+
+  📁 Assets que ya tienes:
+
+  - banner-772x250.PNG (necesita optimización)
+  - icon-256x256.jpg (necesita conversión a PNG)
+
+  🎯 Cuando termines de modificar los assets:
+
+  Deberías tener estos 9 archivos listos:
+  banner-772x250.jpg      (<100KB optimizado)
+  banner-1544x500.jpg     (retina 2x)
+  icon-256x256.png        (transparente)
+  icon-512x512.png        (retina transparente)
+  screenshot-1.jpg        (Dashboard)
+  screenshot-2.jpg        (Scanner)
+  screenshot-3.jpg        (Backups)
+  screenshot-4.jpg        (Settings)
+  screenshot-5.jpg        (Notifications)
+
+  ¿Necesitas alguna referencia o ayuda específica mientras trabajas en los assets?
+
+  C:\xampp\htdocs\keepxo.us\wp-content\plugins\template-fixer-for-woocommerce\assets-wordpress-org\banner-1544x500.
+  jpg
+
+  ¿Con cuál empezamos? ¿El banner retina banner-1544x500.jpg?
