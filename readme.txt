@@ -77,7 +77,7 @@ When WooCommerce updates, your theme templates may become outdated, causing:
 ### 🔧 Special Compatibility
 
 This plugin has been developed and tested specifically with:
-- **uTech Theme** - Full support for Bootstrap structure
+- **Theme** - Full support for Bootstrap structure
 - **WooCommerce 9.9+** - Fully compatible
 - **WordPress 6.0+** - Optimized for latest versions
 
