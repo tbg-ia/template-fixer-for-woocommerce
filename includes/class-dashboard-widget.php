@@ -20,7 +20,7 @@ class WC_Template_Fixer_Dashboard_Widget {
      * Add widgets to dashboard
      */
     public function add_dashboard_widgets() {
-        if ( ! current_user_can( 'manage_options' ) ) {
+        if ( ! current_user_can( 'manage_woocommerce' ) ) {
             return;
         }
         
@@ -405,7 +405,7 @@ class WC_Template_Fixer_Dashboard_Widget {
     public function ajax_widget_stats() {
         check_ajax_referer( 'wc_template_fixer_nonce', 'nonce' );
         
-        if ( ! current_user_can( 'manage_options' ) ) {
+        if ( ! current_user_can( 'manage_woocommerce' ) ) {
             wp_send_json_error( 'Insufficient permissions' );
         }
         

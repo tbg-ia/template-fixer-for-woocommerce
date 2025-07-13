@@ -23,7 +23,7 @@ class WC_Template_Fixer_Notification_System {
      * Show admin notifications
      */
     public function show_admin_notices() {
-        if ( ! current_user_can( 'manage_options' ) ) {
+        if ( ! current_user_can( 'manage_woocommerce' ) ) {
             return;
         }
         
@@ -225,7 +225,7 @@ class WC_Template_Fixer_Notification_System {
      * Add element to admin bar
      */
     public function add_admin_bar_menu( $wp_admin_bar ) {
-        if ( ! current_user_can( 'manage_options' ) ) {
+        if ( ! current_user_can( 'manage_woocommerce' ) ) {
             return;
         }
         
@@ -276,7 +276,7 @@ class WC_Template_Fixer_Notification_System {
      * Add widget to dashboard
      */
     public function add_dashboard_widget() {
-        if ( ! current_user_can( 'manage_options' ) ) {
+        if ( ! current_user_can( 'manage_woocommerce' ) ) {
             return;
         }
         
@@ -409,7 +409,7 @@ class WC_Template_Fixer_Notification_System {
     public function ajax_dismiss_notice() {
         check_ajax_referer( 'wc_template_fixer_notification_nonce', 'nonce' );
         
-        if ( ! current_user_can( 'manage_options' ) ) {
+        if ( ! current_user_can( 'manage_woocommerce' ) ) {
             wp_die( 'Insufficient permissions' );
         }
         

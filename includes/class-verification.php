@@ -24,7 +24,7 @@ class WC_Template_Fixer_Verification {
             return;
         }
         
-        if ( ! current_user_can( 'manage_options' ) ) {
+        if ( ! current_user_can( 'manage_woocommerce' ) ) {
             return;
         }
         

@@ -27,7 +27,7 @@ class WC_Template_Fixer_Updater_Interface {
             'wc-template-fixer',
             'Template Updater',
             '🔧 Template Updater',
-            'manage_options',
+            'manage_woocommerce',
             'wc-template-updater',
             array( $this, 'render_updater_page' )
         );
@@ -458,7 +458,7 @@ class WC_Template_Fixer_Updater_Interface {
     public function handle_mass_update() {
         check_ajax_referer( 'wc_template_updater_nonce', 'nonce' );
         
-        if ( ! current_user_can( 'manage_options' ) ) {
+        if ( ! current_user_can( 'manage_woocommerce' ) ) {
             wp_die( 'Permisos insuficientes' );
         }
         
@@ -480,7 +480,7 @@ class WC_Template_Fixer_Updater_Interface {
     public function handle_preview_changes() {
         check_ajax_referer( 'wc_template_updater_nonce', 'nonce' );
         
-        if ( ! current_user_can( 'manage_options' ) ) {
+        if ( ! current_user_can( 'manage_woocommerce' ) ) {
             wp_die( 'Permisos insuficientes' );
         }
         
@@ -516,7 +516,7 @@ class WC_Template_Fixer_Updater_Interface {
     public function handle_validate_templates() {
         check_ajax_referer( 'wc_template_updater_nonce', 'nonce' );
         
-        if ( ! current_user_can( 'manage_options' ) ) {
+        if ( ! current_user_can( 'manage_woocommerce' ) ) {
             wp_die( 'Permisos insuficientes' );
         }
         

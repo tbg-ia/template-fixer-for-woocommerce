@@ -49,7 +49,7 @@ class WC_Template_Fixer_Admin_Interface {
         add_menu_page(
             'WooCommerce Template Manager',
             'WC Templates',
-            'manage_options',
+            'manage_woocommerce',
             'wc-template-fixer',
             array( $this, 'main_page' ),
             'data:image/svg+xml;base64,' . base64_encode('<svg width="20" height="20" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill="black" d="M18 16h-6v-1h6v1zm-8-1v1H2v-1h8zM2 9h8v1H2V9zm10 0h6v1h-6V9zM2 4h16v1H2V4zm0 8h6v1H2v-1zm8 0h8v1h-8v-1zm-8-4h12v1H2V8zm14 0h2v1h-2V8z"/></svg>'),
@@ -61,7 +61,7 @@ class WC_Template_Fixer_Admin_Interface {
             'wc-template-fixer',
             'Template Dashboard',
             '📊 Dashboard',
-            'manage_options',
+            'manage_woocommerce',
             'wc-template-fixer',
             array( $this, 'main_page' )
         );
@@ -70,7 +70,7 @@ class WC_Template_Fixer_Admin_Interface {
             'wc-template-fixer',
             'Template Backups',
             '💾 Backups',
-            'manage_options',
+            'manage_woocommerce',
             'wc-template-fixer-backups',
             array( $this, 'backups_page' )
         );
@@ -79,7 +79,7 @@ class WC_Template_Fixer_Admin_Interface {
             'wc-template-fixer',
             'Configuration',
             '⚙️ Settings',
-            'manage_options',
+            'manage_woocommerce',
             'wc-template-fixer-settings',
             array( $this, 'settings_page' )
         );
@@ -88,7 +88,7 @@ class WC_Template_Fixer_Admin_Interface {
             'wc-template-fixer',
             'Update History',
             '📋 History',
-            'manage_options',
+            'manage_woocommerce',
             'wc-template-fixer-logs',
             array( $this, 'logs_page' )
         );
@@ -1408,7 +1408,7 @@ class WC_Template_Fixer_Admin_Interface {
     public function ajax_scan_templates() {
         check_ajax_referer( 'wc_template_fixer_nonce', 'nonce' );
         
-        if ( ! current_user_can( 'manage_options' ) ) {
+        if ( ! current_user_can( 'manage_woocommerce' ) ) {
             wp_die( 'Insufficient permissions' );
         }
         
@@ -1432,7 +1432,7 @@ class WC_Template_Fixer_Admin_Interface {
     public function ajax_update_templates() {
         check_ajax_referer( 'wc_template_fixer_nonce', 'nonce' );
         
-        if ( ! current_user_can( 'manage_options' ) ) {
+        if ( ! current_user_can( 'manage_woocommerce' ) ) {
             wp_die( 'Insufficient permissions' );
         }
         
@@ -1455,7 +1455,7 @@ class WC_Template_Fixer_Admin_Interface {
     public function ajax_create_backup() {
         check_ajax_referer( 'wc_template_fixer_nonce', 'nonce' );
         
-        if ( ! current_user_can( 'manage_options' ) ) {
+        if ( ! current_user_can( 'manage_woocommerce' ) ) {
             wp_die( 'Insufficient permissions' );
         }
         
@@ -1470,7 +1470,7 @@ class WC_Template_Fixer_Admin_Interface {
     public function ajax_restore_backup() {
         check_ajax_referer( 'wc_template_fixer_nonce', 'nonce' );
         
-        if ( ! current_user_can( 'manage_options' ) ) {
+        if ( ! current_user_can( 'manage_woocommerce' ) ) {
             wp_die( 'Insufficient permissions' );
         }
         
@@ -1492,7 +1492,7 @@ class WC_Template_Fixer_Admin_Interface {
             wp_die( 'Invalid security token' );
         }
         
-        if ( ! current_user_can( 'manage_options' ) ) {
+        if ( ! current_user_can( 'manage_woocommerce' ) ) {
             wp_die( 'Insufficient permissions' );
         }
         
@@ -1572,7 +1572,7 @@ class WC_Template_Fixer_Admin_Interface {
     public function ajax_quick_stats() {
         check_ajax_referer( 'wc_template_fixer_nonce', 'nonce' );
         
-        if ( ! current_user_can( 'manage_options' ) ) {
+        if ( ! current_user_can( 'manage_woocommerce' ) ) {
             wp_die( 'Insufficient permissions' );
         }
         
@@ -1587,7 +1587,7 @@ class WC_Template_Fixer_Admin_Interface {
     public function ajax_quick_update() {
         check_ajax_referer( 'wc_template_fixer_nonce', 'nonce' );
         
-        if ( ! current_user_can( 'manage_options' ) ) {
+        if ( ! current_user_can( 'manage_woocommerce' ) ) {
             wp_die( 'Insufficient permissions' );
         }
         
@@ -1645,7 +1645,7 @@ class WC_Template_Fixer_Admin_Interface {
     public function legacy_bridge_handler() {
         check_ajax_referer( 'wc_template_fixer_nonce', 'nonce' );
         
-        if ( ! current_user_can( 'manage_options' ) ) {
+        if ( ! current_user_can( 'manage_woocommerce' ) ) {
             wp_die( 'Insufficient permissions' );
         }
         
@@ -1795,7 +1795,7 @@ class WC_Template_Fixer_Admin_Interface {
      * Add notification in admin bar
      */
     public function add_admin_bar_notification( $wp_admin_bar ) {
-        if ( ! current_user_can( 'manage_options' ) ) {
+        if ( ! current_user_can( 'manage_woocommerce' ) ) {
             return;
         }
         
@@ -1845,7 +1845,7 @@ class WC_Template_Fixer_Admin_Interface {
     public function ajax_dismiss_warning() {
         check_ajax_referer( 'wc_template_fixer_dismiss', 'nonce' );
         
-        if ( ! current_user_can( 'manage_options' ) ) {
+        if ( ! current_user_can( 'manage_woocommerce' ) ) {
             wp_die( 'Insufficient permissions' );
         }
         
