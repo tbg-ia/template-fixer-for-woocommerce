@@ -5,9 +5,8 @@
     "license": "GPL-2.0-or-later",
     "authors": [
         {
-            "name": "KeepXO Development Team",
-            "email": "developer@keepxo.us",
-            "homepage": "https://keepxo.us"
+            "name": "KeepXDev",
+            "homepage": "https://profiles.wordpress.org/keepxdev/"
         }
     ],
     "require": {

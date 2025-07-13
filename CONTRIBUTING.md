@@ -55,4 +55,4 @@ Thank you for your interest in contributing to Template Fixer for WooCommerce! W
 
 ## Support
 
-For questions about contributing, please contact us at support@keepxo.us
+For questions about contributing, please open an issue on GitHub or contact via WordPress.org forums.

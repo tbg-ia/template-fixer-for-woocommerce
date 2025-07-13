@@ -1,6 +1,6 @@
 === Template Fixer for WooCommerce ===
-Contributors: keepxo
-Donate link: https://paypal.me/keepxo
+Contributors: keepxdev
+Donate link: https://wordpress.org/support/users/keepxdev/
 Tags: woocommerce, templates, template-fixer, outdated-templates, woocommerce-compatibility
 Requires at least: 5.0
 Tested up to: 6.8
@@ -284,9 +284,8 @@ El código fuente está disponible en GitHub. Las contribuciones son bienvenidas
 - Enviar pull requests
 - Mejorar documentación
 
-**Repositorio:** https://github.com/keepxo/template-fixer-for-woocommerce
-**Documentación:** https://keepxo.us/docs/wc-template-fixer
-**Soporte:** https://keepxo.us/support
+**Support Forum:** https://wordpress.org/support/plugin/template-fixer-for-woocommerce/
+**GitHub Repository:** https://github.com/tbg-ia/template-fixer-for-woocommerce
 
 == Privacy Policy ==
 

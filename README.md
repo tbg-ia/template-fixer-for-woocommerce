@@ -48,4 +48,4 @@ GPL v2 or later - see [LICENSE.txt](LICENSE.txt) for details.
 
 ## Support
 
-For support, visit [https://keepxo.us](https://keepxo.us)
+For support, visit the [WordPress.org support forum](https://wordpress.org/support/plugin/template-fixer-for-woocommerce/)

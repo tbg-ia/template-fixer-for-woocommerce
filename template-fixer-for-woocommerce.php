@@ -1,11 +1,11 @@
 <?php
 /**
  * Plugin Name: Template Fixer for WooCommerce
- * Plugin URI: https://keepxo.us
+ * Plugin URI: https://wordpress.org/plugins/template-fixer-for-woocommerce/
  * Description: Automatically fixes outdated WooCommerce template files by updating them while preserving theme customizations and ensuring compatibility.
  * Version: 2.0.0
- * Author: KeepXO Development Team
- * Author URI: https://keepxo.us
+ * Author: KeepXDev
+ * Author URI: https://profiles.wordpress.org/keepxdev/
  * Text Domain: template-fixer-for-woocommerce
  * Domain Path: /languages
  * Requires at least: 5.0
