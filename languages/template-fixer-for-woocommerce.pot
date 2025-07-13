@@ -1,9 +1,9 @@
-# Template Fixer for WooCommerce POT File
+# WooCommerce Template Fixer POT File
 # Copyright (C) 2024 KeepXO Development Team
-# This file is distributed under the same license as the Template Fixer for WooCommerce plugin.
+# This file is distributed under the same license as the WooCommerce Template Fixer plugin.
 msgid ""
 msgstr ""
-"Project-Id-Version: Template Fixer for WooCommerce 2.0.0\n"
+"Project-Id-Version: WooCommerce Template Fixer 2.0.1\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/template-fixer-for-woocommerce/\n"
 "POT-Creation-Date: 2024-12-01 12:00+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"

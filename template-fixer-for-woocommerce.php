@@ -1,9 +1,9 @@
 <?php
 /**
- * Plugin Name: Template Fixer for WooCommerce
+ * Plugin Name: WooCommerce Template Fixer
  * Plugin URI: https://wordpress.org/plugins/template-fixer-for-woocommerce/
  * Description: Automatically fixes outdated WooCommerce template files by updating them while preserving theme customizations and ensuring compatibility.
- * Version: 2.0.0
+ * Version: 2.0.1
  * Author: KeepXDev
  * Author URI: https://profiles.wordpress.org/keepxdev/
  * Text Domain: template-fixer-for-woocommerce
@@ -27,7 +27,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 if ( version_compare( PHP_VERSION, '7.4', '<' ) ) {
     add_action( 'admin_notices', function() {
         echo '<div class="notice notice-error"><p>';
-        echo '<strong>Template Fixer for WooCommerce:</strong> ';
+        echo '<strong>WooCommerce Template Fixer:</strong> ';
         echo 'This plugin requires PHP 7.4 or higher. You are running PHP ' . esc_html( PHP_VERSION );
         echo '</p></div>';
     });
@@ -35,7 +35,7 @@ if ( version_compare( PHP_VERSION, '7.4', '<' ) ) {
 }
 
 // Define plugin constants
-define( 'WC_TEMPLATE_FIXER_VERSION', '2.0.0' );
+define( 'WC_TEMPLATE_FIXER_VERSION', '2.0.1' );
 define( 'WC_TEMPLATE_FIXER_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
 define( 'WC_TEMPLATE_FIXER_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
 define( 'WC_TEMPLATE_FIXER_BASENAME', plugin_basename( __FILE__ ) );
@@ -103,7 +103,7 @@ function wc_template_fixer_init() {
         } else {
             add_action( 'admin_notices', function() use ( $file ) {
                 echo '<div class="notice notice-error"><p>';
-                echo '<strong>Template Fixer for WooCommerce:</strong> Missing required file: ' . esc_html( $file );
+                echo '<strong>WooCommerce Template Fixer:</strong> Missing required file: ' . esc_html( $file );
                 echo '</p></div>';
             });
             return;
