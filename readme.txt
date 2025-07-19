@@ -1,11 +1,11 @@
-=== WooCommerce Template Fixer ===
+=== Template Fixer for WooCommerce ===
 Contributors: keepxdev
 Donate link: https://wordpress.org/support/users/keepxdev/
 Tags: woocommerce, templates, template-fixer, outdated-templates, woocommerce-compatibility
 Requires at least: 5.0
 Tested up to: 6.8
 Requires PHP: 7.4
-Stable tag: 2.0.1
+Stable tag: 2.0.2
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 WC requires at least: 5.0
@@ -15,7 +15,7 @@ Automatically updates outdated WooCommerce templates while maintaining customiza
 
 == Description ==
 
-**WooCommerce Template Fixer** is the definitive solution for one of the most common problems in WooCommerce stores: **outdated templates that compromise security and functionality**.
+**Template Fixer for WooCommerce** is the definitive solution for one of the most common problems in WooCommerce stores: **outdated templates that compromise security and functionality**.
 
 ### 🚨 Why do you need this plugin?
 
@@ -110,7 +110,7 @@ This plugin has been developed and tested specifically with:
 ### Automatic Installation
 
 1. Go to **Plugins > Add New** in your WordPress dashboard
-2. Search for "WooCommerce Template Fixer"
+2. Search for "Template Fixer for WooCommerce"
 3. Click **Install Now**
 4. **Activate** the plugin
 
@@ -140,7 +140,7 @@ The plugin automatically detects customizations such as Bootstrap CSS classes, c
 
 = Does it work with all themes? =
 
-The plugin works with any WordPress theme, but has special optimizations for themes that use Bootstrap and specific structures like uTech.
+The plugin works with any WordPress theme, with universal compatibility regardless of theme structure.
 
 = Can I undo an update? =
 
@@ -167,7 +167,7 @@ Yes, it includes special features for centralized management in multisite instal
 1. **Dashboard Principal** - Vista general con estadísticas y botones de acción
 2. **Resultados del Escaneo** - Lista detallada de templates obsoletos con niveles de riesgo
 3. **Gestión de Backups** - Interfaz para crear, restaurar y gestionar backups
-4. **Configuración** - Opciones detalladas para personalizar el comportamiento
+4. **Configuration** - Detailed options to customize behavior
 5. **Logs de Actividad** - Historial completo de todas las operaciones
 6. **Notificaciones** - Alertas en tiempo real sobre templates críticos
 
@@ -223,7 +223,7 @@ Yes, it includes special features for centralized management in multisite instal
 **🔧 Características Técnicas:**
 - Soporte para WooCommerce 9.9+
 - Compatibilidad con WordPress 6.0+
-- Optimización especial para tema uTech
+- Compatibilidad universal con cualquier tema
 - API REST para integraciones futuras
 - Hooks y filtros para desarrolladores
 
@@ -252,7 +252,7 @@ Versión inicial del plugin. Instala para comenzar a solucionar templates obsole
 - `wc_template_fixer_scan_results` - Modificar resultados del escaneo
 - `wc_template_fixer_backup_directory` - Cambiar directorio de backups
 - `wc_template_fixer_preserve_customizations` - Control de preservación
-- `wc_template_fixer_risk_calculation` - Personalizar cálculo de riesgo
+- `wc_template_fixer_risk_calculation` - Customize risk calculation
 
 **Acciones:**
 - `wc_template_fixer_before_update` - Antes de actualizar template
@@ -281,7 +281,7 @@ $backup_path = $backup_manager->create_backup('checkout/form-checkout.php');
 El código fuente está disponible en GitHub. Las contribuciones son bienvenidas:
 - Reportar bugs
 - Sugerir nuevas características
-- Enviar pull requests
+- Send pull requests
 - Mejorar documentación
 
 **Support Forum:** https://wordpress.org/support/plugin/template-fixer-for-woocommerce/

@@ -81,7 +81,7 @@ class WC_Template_Fixer_Updater {
             );
             
         } catch ( Exception $e ) {
-            // Registrar error en logs
+            // Log error to records
             wc_template_fixer_log(
                 $template_name,
                 'update',
@@ -117,7 +117,7 @@ class WC_Template_Fixer_Updater {
                 $error_count++;
             }
             
-            // Pequeña pausa para evitar sobrecarga
+            // Small pause to prevent overload
             usleep( 100000 ); // 0.1 segundos
         }
         
@@ -142,27 +142,146 @@ class WC_Template_Fixer_Updater {
             }
         }
         
-        if ( ! empty( $safe_templates ) ) {
-            $results = $this->update_multiple_templates( $safe_templates, false );
-            
-            // Send automatic update notification
-            if ( $results['success_count'] > 0 ) {
-                $this->send_auto_update_notification( $results );
-            }
-            
-            return $results;
+        if ( empty( $safe_templates ) ) {
+            return array(
+                'success' => false,
+                'message' => 'No safe templates found for automatic update'
+            );
         }
         
-        return array(
-            'total_processed' => 0,
-            'success_count' => 0,
-            'error_count' => 0,
-            'results' => array()
-        );
+        $results = $this->update_multiple_templates( $safe_templates, false );
+        
+        // Send notification
+        if ( $results['success_count'] > 0 ) {
+            $this->send_auto_update_notification( $results );
+        }
+        
+        return $results;
     }
     
     /**
-     * Aplicar personalizaciones del tema
+     * Universal auto-fix for all outdated templates (compatible with any theme)
+     */
+    public function auto_fix_all_outdated_templates( $options = array() ) {
+        $default_options = array(
+            'preserve_customizations' => true,
+            'skip_critical_risk' => false,
+            'create_backups' => true,
+            'dry_run' => false
+        );
+        
+        $options = array_merge( $default_options, $options );
+        
+        try {
+            // Get all outdated templates using our enhanced scanner
+            $scanner = new WC_Template_Fixer_Scanner();
+            $outdated_templates = $scanner->scan_outdated_templates();
+            
+            if ( empty( $outdated_templates ) ) {
+                return array(
+                    'success' => true,
+                    'message' => 'No outdated templates found',
+                    'templates_processed' => 0,
+                    'templates_updated' => 0,
+                    'templates_skipped' => 0,
+                    'results' => array()
+                );
+            }
+            
+            $results = array();
+            $updated_count = 0;
+            $skipped_count = 0;
+            $error_count = 0;
+            
+            foreach ( $outdated_templates as $template ) {
+                $template_name = $template['name'];
+                
+                // Skip critical risk templates if requested
+                if ( $options['skip_critical_risk'] && $template['risk_level'] === 'critical' ) {
+                    $results[$template_name] = array(
+                        'success' => false,
+                        'message' => 'Skipped due to critical risk level',
+                        'skipped' => true,
+                        'risk_level' => $template['risk_level']
+                    );
+                    $skipped_count++;
+                    continue;
+                }
+                
+                // Dry run - just simulate the update
+                if ( $options['dry_run'] ) {
+                    $results[$template_name] = array(
+                        'success' => true,
+                        'message' => 'Would be updated (dry run)',
+                        'old_version' => $template['theme_version'],
+                        'new_version' => $template['core_version'],
+                        'risk_level' => $template['risk_level'],
+                        'has_customizations' => $template['has_customizations'],
+                        'dry_run' => true
+                    );
+                    continue;
+                }
+                
+                // Perform the actual update
+                $update_result = $this->update_template( $template_name, $options['preserve_customizations'] );
+                
+                if ( $update_result['success'] ) {
+                    $updated_count++;
+                    $results[$template_name] = array_merge( $update_result, array(
+                        'risk_level' => $template['risk_level'],
+                        'has_customizations' => $template['has_customizations'],
+                        'theme_type' => $template['theme_type'] ?? 'unknown'
+                    ));
+                } else {
+                    $error_count++;
+                    $results[$template_name] = $update_result;
+                }
+                
+                // Small delay to prevent server overload
+                if ( ! $options['dry_run'] ) {
+                    usleep( 100000 ); // 0.1 seconds
+                }
+            }
+            
+            // Send notification if templates were actually updated
+            if ( $updated_count > 0 && ! $options['dry_run'] ) {
+                $this->send_universal_update_notification( array(
+                    'results' => $results,
+                    'updated_count' => $updated_count,
+                    'skipped_count' => $skipped_count,
+                    'error_count' => $error_count,
+                    'total_count' => count( $outdated_templates )
+                ));
+            }
+            
+            return array(
+                'success' => true,
+                'message' => sprintf( 
+                    'Processed %d templates: %d updated, %d skipped, %d errors', 
+                    count( $outdated_templates ), 
+                    $updated_count, 
+                    $skipped_count, 
+                    $error_count 
+                ),
+                'templates_processed' => count( $outdated_templates ),
+                'templates_updated' => $updated_count,
+                'templates_skipped' => $skipped_count,
+                'templates_errors' => $error_count,
+                'results' => $results,
+                'dry_run' => $options['dry_run']
+            );
+            
+        } catch ( Exception $e ) {
+            return array(
+                'success' => false,
+                'message' => 'Error during auto-fix: ' . $e->getMessage(),
+                'error' => $e->getMessage()
+            );
+        }
+    }
+    
+    /**
+     * Apply theme customizations
      */
     private function apply_theme_customizations( $template_name, $core_content ) {
         $theme_file = $this->get_theme_template_path( $template_name );
@@ -173,7 +292,7 @@ class WC_Template_Fixer_Updater {
         
         $theme_content = file_get_contents( $theme_file );
         
-        // Aplicar personalizaciones específicas según el template
+        // Apply specific customizations according to template
         switch ( $template_name ) {
             case 'myaccount/form-login.php':
                 return $this->customize_form_login( $core_content, $theme_content );
@@ -193,10 +312,10 @@ class WC_Template_Fixer_Updater {
     }
     
     /**
-     * Personalizar form-login.php
+     * Customize form-login.php
      */
     private function customize_form_login( $core_content, $theme_content ) {
-        // Detectar si el tema usa Bootstrap
+        // Detect if theme uses Bootstrap
         if ( strpos( $theme_content, 'container' ) !== false && strpos( $theme_content, 'row' ) !== false ) {
             
             // Reemplazar estructura base con Bootstrap
@@ -219,31 +338,31 @@ class WC_Template_Fixer_Updater {
                 $core_content
             );
             
-            // Agregar clases específicas del tema
+            // Add theme-specific classes
             $core_content = str_replace(
                 '<h2><?php esc_html_e( \'Login\', \'woocommerce\' ); ?></h2>',
-                '<h2 class="login__heading"><?php esc_html_e( \'Login\', \'utech\' ); ?></h2>',
+                '<h2 class="login__heading"><?php esc_html_e( \'Login\', get_template() ); ?></h2>',
                 $core_content
             );
             
             $core_content = str_replace(
                 '<h2><?php esc_html_e( \'Register\', \'woocommerce\' ); ?></h2>',
-                '<h2 class="register__heading"><?php esc_html_e( \'Register\', \'utech\' ); ?></h2>',
+                '<h2 class="register__heading"><?php esc_html_e( \'Register\', get_template() ); ?></h2>',
                 $core_content
             );
             
-            // Agregar estructura para caso sin registro
+            // Add structure for no-registration case
             $core_content = $this->add_no_registration_structure( $core_content );
         }
         
-        return $this->preserve_text_domain( $core_content, 'utech' );
+        return $this->preserve_text_domain( $core_content, get_template() );
     }
     
     /**
-     * Personalizar form-lost-password.php
+     * Customize form-lost-password.php
      */
     private function customize_form_lost_password( $core_content, $theme_content ) {
-        // Detectar estructura Bootstrap
+        // Detect Bootstrap structure
         if ( strpos( $theme_content, 'container' ) !== false ) {
             $core_content = str_replace(
                 '<form method="post" class="woocommerce-ResetPassword lost_reset_password">',
@@ -264,23 +383,23 @@ class WC_Template_Fixer_Updater {
             );
         }
         
-        return $this->preserve_text_domain( $core_content, 'utech' );
+        return $this->preserve_text_domain( $core_content, get_template() );
     }
     
     /**
-     * Personalizar my-address.php
+     * Customize my-address.php
      */
     private function customize_my_address( $core_content, $theme_content ) {
-        // Preservar text domain del tema
+        // Preserve theme text domain
         $core_content = str_replace(
             '__( \'Billing address\', \'woocommerce\' )',
-            '__( \'Billing address\', \'utech\' )',
+            '__( \'Billing address\', \'' . get_template() . '\' )',
             $core_content
         );
         
         $core_content = str_replace(
             '__( \'Shipping address\', \'woocommerce\' )',
-            '__( \'Shipping address\', \'utech\' )',
+            '__( \'Shipping address\', \'' . get_template() . '\' )',
             $core_content
         );
         
@@ -288,10 +407,10 @@ class WC_Template_Fixer_Updater {
     }
     
     /**
-     * Personalizar order-details-customer.php
+     * Customize order-details-customer.php
      */
     private function customize_order_details_customer( $core_content, $theme_content ) {
-        // Detectar si usa estructura Bootstrap personalizada
+        // Detect if uses custom Bootstrap structure
         if ( strpos( $theme_content, 'woocommerce-customer-details-section' ) !== false ) {
             $core_content = str_replace(
                 '<section class="woocommerce-customer-details">',
@@ -299,25 +418,25 @@ class WC_Template_Fixer_Updater {
                 $core_content
             );
             
-            // Agregar estructura Bootstrap si existe en el tema
+            // Add estructura Bootstrap si existe en el tema
             if ( strpos( $theme_content, 'row justify-content-center' ) !== false ) {
                 $core_content = $this->add_bootstrap_structure_to_order_details( $core_content );
             }
         }
         
-        return $this->preserve_text_domain( $core_content, 'utech' );
+        return $this->preserve_text_domain( $core_content, get_template() );
     }
     
     /**
-     * Aplicar personalizaciones genéricas
+     * Apply generic customizations
      */
     private function apply_generic_customizations( $core_content, $theme_content ) {
-        // Preservar text domain si se usa en el tema
-        if ( strpos( $theme_content, '\'utech\'' ) !== false ) {
-            $core_content = $this->preserve_text_domain( $core_content, 'utech' );
+        // Preserve text domain if used in theme
+        if ( strpos( $theme_content, '\'' . get_template() . '\'' ) !== false ) {
+            $core_content = $this->preserve_text_domain( $core_content, get_template() );
         }
         
-        // Preservar clases CSS personalizadas comunes
+        // Preserve common custom CSS classes
         $custom_classes = $this->extract_custom_classes( $theme_content );
         foreach ( $custom_classes as $class ) {
             $core_content = $this->apply_custom_class( $core_content, $class );
@@ -327,7 +446,7 @@ class WC_Template_Fixer_Updater {
     }
     
     /**
-     * Preservar text domain del tema
+     * Preserve theme text domain
      */
     private function preserve_text_domain( $content, $text_domain ) {
         // Strings de usuario que deberían usar el text domain del tema
@@ -349,7 +468,7 @@ class WC_Template_Fixer_Updater {
     }
     
     /**
-     * Extraer clases CSS personalizadas del tema
+     * Extract custom CSS classes from theme
      */
     private function extract_custom_classes( $theme_content ) {
         $custom_classes = array();
@@ -372,7 +491,7 @@ class WC_Template_Fixer_Updater {
     }
     
     /**
-     * Aplicar clase personalizada
+     * Apply custom class
      */
     private function apply_custom_class( $content, $custom_class ) {
         // Buscar elementos h2 de login/register para aplicar clases específicas
@@ -396,7 +515,7 @@ class WC_Template_Fixer_Updater {
     }
     
     /**
-     * Agregar estructura Bootstrap a order-details-customer
+     * Add Bootstrap structure to order-details-customer
      */
     private function add_bootstrap_structure_to_order_details( $core_content ) {
         // Modificar la estructura para incluir Bootstrap y mantener compatibilidad WooCommerce
@@ -421,7 +540,7 @@ class WC_Template_Fixer_Updater {
             $core_content
         );
         
-        // Agregar Bootstrap classes a la columna de shipping
+        // Add Bootstrap classes to shipping column
         $core_content = str_replace(
             '<div class="woocommerce-column woocommerce-column--2 woocommerce-column--shipping-address col-2">',
             '<div class="woocommerce-column woocommerce-column--2 woocommerce-column--shipping-address col-2 col-md-6 col-lg-6 col-sm-12">',
@@ -452,7 +571,7 @@ class WC_Template_Fixer_Updater {
     }
     
     /**
-     * Agregar estructura sin registro
+     * Add no-registration structure
      */
     private function add_no_registration_structure( $content ) {
         $no_reg_structure = '
@@ -461,17 +580,17 @@ class WC_Template_Fixer_Updater {
 	<div class="container">
 		<div class="row customer__login__register justify-content-md-center" id="customer_login">
 			<div class="col-lg-6 col-sm-12">
-				<h2 class="login__heading"><?php esc_html_e( \'Login\', \'utech\' ); ?></h2>
+				<h2 class="login__heading"><?php esc_html_e( \'Login\', get_template() ); ?></h2>
 				<form class="woocommerce-form woocommerce-form-login login" method="post" novalidate>
 
 					<?php do_action( \'woocommerce_login_form_start\' ); ?>
 
 					<p class="woocommerce-form-row woocommerce-form-row--wide form-row form-row-wide">
-						<label for="username"><?php esc_html_e( \'Username or email address\', \'utech\' ); ?>&nbsp;<span class="required" aria-hidden="true">*</span><span class="screen-reader-text"><?php esc_html_e( \'Required\', \'woocommerce\' ); ?></span></label>
+						<label for="username"><?php esc_html_e( \'Username or email address\', get_template() ); ?>&nbsp;<span class="required" aria-hidden="true">*</span><span class="screen-reader-text"><?php esc_html_e( \'Required\', \'woocommerce\' ); ?></span></label>
 						<input type="text" class="woocommerce-Input woocommerce-Input--text input-text" name="username" id="username" autocomplete="username" value="<?php echo ( ! empty( $_POST[\'username\'] ) && is_string( $_POST[\'username\'] ) ) ? esc_attr( wp_unslash( $_POST[\'username\'] ) ) : \'\'; ?>" required aria-required="true" /><?php // @codingStandardsIgnoreLine ?>
 					</p>
 					<p class="woocommerce-form-row woocommerce-form-row--wide form-row form-row-wide">
-						<label for="password"><?php esc_html_e( \'Password\', \'utech\' ); ?>&nbsp;<span class="required" aria-hidden="true">*</span><span class="screen-reader-text"><?php esc_html_e( \'Required\', \'woocommerce\' ); ?></span></label>
+						<label for="password"><?php esc_html_e( \'Password\', get_template() ); ?>&nbsp;<span class="required" aria-hidden="true">*</span><span class="screen-reader-text"><?php esc_html_e( \'Required\', \'woocommerce\' ); ?></span></label>
 						<input class="woocommerce-Input woocommerce-Input--text input-text" type="password" name="password" id="password" autocomplete="current-password" required aria-required="true" />
 					</p>
 
@@ -479,13 +598,13 @@ class WC_Template_Fixer_Updater {
 
 					<p class="form-row">
 						<label class="woocommerce-form__label woocommerce-form__label-for-checkbox woocommerce-form-login__rememberme">
-							<input class="woocommerce-form__input woocommerce-form__input-checkbox" name="rememberme" type="checkbox" id="rememberme" value="forever" /> <span><?php esc_html_e( \'Remember me\', \'utech\' ); ?></span>
+							<input class="woocommerce-form__input woocommerce-form__input-checkbox" name="rememberme" type="checkbox" id="rememberme" value="forever" /> <span><?php esc_html_e( \'Remember me\', get_template() ); ?></span>
 						</label>
 						<?php wp_nonce_field( \'woocommerce-login\', \'woocommerce-login-nonce\' ); ?>
-						<button type="submit" class="woocommerce-button button woocommerce-form-login__submit<?php echo esc_attr( wc_wp_theme_get_element_class_name( \'button\' ) ? \' \' . wc_wp_theme_get_element_class_name( \'button\' ) : \'\' ); ?>" name="login" value="<?php esc_attr_e( \'Log in\', \'utech\' ); ?>"><?php esc_html_e( \'Log in\', \'utech\' ); ?></button>
+						<button type="submit" class="woocommerce-button button woocommerce-form-login__submit<?php echo esc_attr( wc_wp_theme_get_element_class_name( \'button\' ) ? \' \' . wc_wp_theme_get_element_class_name( \'button\' ) : \'\' ); ?>" name="login" value="<?php esc_attr_e( \'Log in\', get_template() ); ?>"><?php esc_html_e( \'Log in\', get_template() ); ?></button>
 					</p>
 					<p class="woocommerce-LostPassword lost_password">
-						<a href="<?php echo esc_url( wp_lostpassword_url() ); ?>"><?php esc_html_e( \'Lost your password?\', \'utech\' ); ?></a>
+						<a href="<?php echo esc_url( wp_lostpassword_url() ); ?>"><?php esc_html_e( \'Lost your password?\', get_template() ); ?></a>
 					</p>
 
 					<?php do_action( \'woocommerce_login_form_end\' ); ?>
@@ -504,27 +623,61 @@ class WC_Template_Fixer_Updater {
     }
     
     /**
-     * Obtener ruta del template del tema
+     * Get theme template path (universal)
      */
     private function get_theme_template_path( $template_name ) {
-        return get_stylesheet_directory() . '/woocommerce/' . $template_name;
+        // Check child theme first
+        $child_theme_path = get_stylesheet_directory() . '/woocommerce/' . $template_name;
+        if ( file_exists( $child_theme_path ) ) {
+            return $child_theme_path;
+        }
+        
+        // Check parent theme
+        $parent_theme_path = get_template_directory() . '/woocommerce/' . $template_name;
+        if ( file_exists( $parent_theme_path ) ) {
+            return $parent_theme_path;
+        }
+        
+        // Return child theme path for new template creation
+        return $child_theme_path;
     }
     
     /**
-     * Obtener ruta del template core
+     * Get core template path (universal with fallbacks)
      */
     private function get_core_template_path( $template_name ) {
+        // Use the enhanced scanner's logic for finding core templates
+        if ( class_exists( 'WC_Template_Fixer_Scanner' ) ) {
+            $scanner = new WC_Template_Fixer_Scanner();
+            $reflection = new ReflectionClass( $scanner );
+            $method = $reflection->getMethod( 'get_core_template_path' );
+            $method->setAccessible( true );
+            return $method->invoke( $scanner, $template_name );
+        }
+        
+        // Fallback to direct path
         return WC()->plugin_path() . '/templates/' . $template_name;
     }
     
     /**
-     * Obtener versión del template
+     * Get template version (universal)
      */
     private function get_template_version( $file_path ) {
         if ( ! file_exists( $file_path ) ) {
             return '';
         }
         
+        // Use the enhanced scanner's version detection
+        if ( class_exists( 'WC_Template_Fixer_Scanner' ) ) {
+            $scanner = new WC_Template_Fixer_Scanner();
+            $reflection = new ReflectionClass( $scanner );
+            $method = $reflection->getMethod( 'extract_template_version' );
+            $method->setAccessible( true );
+            $version = $method->invoke( $scanner, $file_path );
+            return $version ?: '';
+        }
+        
+        // Fallback to basic version detection
         $content = file_get_contents( $file_path );
         if ( preg_match( '/@version\s+(\d+\.\d+\.\d+)/', $content, $matches ) ) {
             return $matches[1];
@@ -563,6 +716,83 @@ class WC_Template_Fixer_Updater {
         $message .= "Revisa los cambios en: " . admin_url( 'admin.php?page=wc-template-fixer' );
         
         wp_mail( $admin_email, $subject, $message );
+    }
+    
+    /**
+     * Send universal update notification for any theme
+     */
+    private function send_universal_update_notification( $data ) {
+        if ( ! wc_template_fixer_get_option( 'email_notifications', false ) ) {
+            return;
+        }
+        
+        $admin_email = get_option( 'admin_email' );
+        $site_name = get_bloginfo( 'name' );
+        $theme_name = get_stylesheet();
+        
+        $subject = sprintf( '[%s] WooCommerce Templates Universal Auto-Fix Complete', $site_name );
+        
+        $message = "Universal WooCommerce Template Auto-Fix Results:\n\n";
+        $message .= "Theme: {$theme_name}\n";
+        $message .= "Total Templates Processed: {$data['total_count']}\n";
+        $message .= "Successfully Updated: {$data['updated_count']}\n";
+        $message .= "Skipped: {$data['skipped_count']}\n";
+        $message .= "Errors: {$data['error_count']}\n\n";
+        
+        if ( $data['updated_count'] > 0 ) {
+            $message .= "Updated Templates:\n";
+            foreach ( $data['results'] as $template => $result ) {
+                if ( $result['success'] && ! isset( $result['skipped'] ) ) {
+                    $risk_emoji = $this->get_risk_emoji( $result['risk_level'] ?? 'low' );
+                    $customization_note = ( $result['has_customizations'] ?? false ) ? ' (customizations preserved)' : '';
+                    $message .= sprintf(
+                        "%s %s (v%s → v%s)%s\n",
+                        $risk_emoji,
+                        $template,
+                        $result['old_version'] ?? 'unknown',
+                        $result['new_version'] ?? 'unknown',
+                        $customization_note
+                    );
+                }
+            }
+        }
+        
+        if ( $data['skipped_count'] > 0 ) {
+            $message .= "\nSkipped Templates:\n";
+            foreach ( $data['results'] as $template => $result ) {
+                if ( isset( $result['skipped'] ) && $result['skipped'] ) {
+                    $message .= "⚠️ {$template} - {$result['message']}\n";
+                }
+            }
+        }
+        
+        if ( $data['error_count'] > 0 ) {
+            $message .= "\nErrors:\n";
+            foreach ( $data['results'] as $template => $result ) {
+                if ( ! $result['success'] && ! isset( $result['skipped'] ) ) {
+                    $message .= "❌ {$template} - {$result['message']}\n";
+                }
+            }
+        }
+        
+        $message .= "\nView detailed results: " . admin_url( 'admin.php?page=wc-template-fixer' );
+        $message .= "\nWooCommerce Status: " . admin_url( 'admin.php?page=wc-status&tab=status' );
+        
+        wp_mail( $admin_email, $subject, $message );
+    }
+    
+    /**
+     * Get emoji for risk level
+     */
+    private function get_risk_emoji( $risk_level ) {
+        $emojis = array(
+            'critical' => '🚨',
+            'high' => '⚠️',
+            'medium' => '🔶',
+            'low' => '✅'
+        );
+        
+        return $emojis[ $risk_level ] ?? '✅';
     }
     
 }

@@ -46,7 +46,7 @@ class WC_Template_Fixer_Verification {
                 <li>🔧 <strong>Template Updater</strong> - Enhanced interface with quick actions</li>
                 <li>📊 <strong>Dashboard Widgets</strong> - Real-time monitoring</li>
                 <li>🚀 <strong>Mass Updates</strong> - With preview and validation</li>
-                <li>💾 <strong>Automatic Backups</strong> - With uTech customizations preservation</li>
+                <li>💾 <strong>Automatic Backups</strong> - With theme customizations preservation</li>
             </ul>
             <p>
                 <a href="<?php echo esc_url( admin_url( 'admin.php?page=wc-template-updater' ) ); ?>" class="button button-primary">

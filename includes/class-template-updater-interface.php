@@ -80,7 +80,7 @@ class WC_Template_Fixer_Updater_Interface {
         ?>
         <div class="wrap wc-template-updater">
             <h1>🔧 WooCommerce Template Updater</h1>
-            <p class="description">Automatically update WooCommerce templates for uTech theme while preserving customizations.</p>
+            <p class="description">Automatically update WooCommerce templates for your theme while preserving customizations.</p>
 
             <div class="updater-stats">
                 <?php 
@@ -128,16 +128,16 @@ class WC_Template_Fixer_Updater_Interface {
                             <h3>💡 Update Recommendations</h3>
                             <div class="recommendation-grid">
                                 <div class="rec-item urgent">
-                                    <strong>🚑 Urgente (Hoy)</strong>
-                                    <p>Templates críticos con vulnerabilidades de seguridad</p>
+                                    <strong>🚑 Urgent (Today)</strong>
+                                    <p>Critical templates with security vulnerabilities</p>
                                 </div>
                                 <div class="rec-item soon">
-                                    <strong>📅 Esta Semana</strong>
+                                    <strong>📅 This Week</strong>
                                     <p>Templates with important updates</p>
                                 </div>
                                 <div class="rec-item later">
-                                    <strong>🕰️ Cuando sea Conveniente</strong>
-                                    <p>Templates con mejoras menores</p>
+                                    <strong>🕰️ When Convenient</strong>
+                                    <p>Templates with minor improvements</p>
                                 </div>
                             </div>
                         </div>
@@ -159,7 +159,7 @@ class WC_Template_Fixer_Updater_Interface {
                         }
                     }
 
-                    // Mostrar cada grupo
+                    // Show each group
                     $group_config = array(
                         'critical' => array(
                             'title' => '🔥 Critical Templates (Urgent Update)',
@@ -167,7 +167,7 @@ class WC_Template_Fixer_Updater_Interface {
                             'description' => 'These templates have security vulnerabilities or are very outdated.'
                         ),
                         'needs_update' => array(
-                            'title' => '🟡 Templates que Necesitan Actualización',
+                            'title' => '🟡 Templates That Need Update',
                             'class' => 'needs-update-section',
                             'description' => 'Templates with available updates to improve functionality.'
                         ),
@@ -224,7 +224,7 @@ class WC_Template_Fixer_Updater_Interface {
                     
                     <div class="update-actions">
                         <div class="selected-count">
-                            <span id="selected-templates-count">0</span> templates seleccionados
+                            <span id="selected-templates-count">0</span> templates selected
                         </div>
                         <div class="batch-actions">
                             <button type="submit" 
@@ -252,7 +252,7 @@ class WC_Template_Fixer_Updater_Interface {
     }
     
     /**
-     * Obtener lista de templates (dinámico)
+     * Get templates list (dynamic)
      */
     private function get_templates_list() {
         $scanner = new WC_Template_Fixer_Scanner();
@@ -362,8 +362,8 @@ class WC_Template_Fixer_Updater_Interface {
             'cart/cart.php' => 'Carrito de compras principal',
             'cart/cart-totals.php' => 'Cálculo de totales del carrito',
             'cart/mini-cart.php' => 'Mini carrito lateral',
-            'single-product/add-to-cart/simple.php' => 'Agregar productos simples al carrito',
-            'single-product/add-to-cart/variable.php' => 'Agregar productos variables al carrito'
+            'single-product/add-to-cart/simple.php' => 'Add simple products to cart',
+            'single-product/add-to-cart/variable.php' => 'Add variable products to cart'
         );
         
         $base_note = isset( $notes_map[$template_name] ) ? $notes_map[$template_name] : 'Template de WooCommerce';
@@ -374,7 +374,7 @@ class WC_Template_Fixer_Updater_Interface {
             case 'medium':
                 return 'Needs update - ' . $base_note;
             case 'low':
-                return 'Actualización menor disponible - ' . $base_note;
+                return 'Minor update available - ' . $base_note;
             default:
                 return $base_note;
         }
@@ -396,7 +396,7 @@ class WC_Template_Fixer_Updater_Interface {
     }
     
     /**
-     * Obtener estadísticas de templates
+     * Get templates statistics
      */
     private function get_templates_stats( $templates ) {
         $stats = array(
@@ -428,11 +428,11 @@ class WC_Template_Fixer_Updater_Interface {
         echo '<div class="progress-bar" id="update-progress">';
         echo '<div class="progress-fill" style="width: 100%;"></div>';
         echo '</div>';
-        echo '<div class="progress-text">Actualización completada</div>';
+        echo '<div class="progress-text">Update completed</div>';
         echo '</div>';
         
         echo '<div class="update-complete">';
-        echo '<h2>🎉 Actualización Completada</h2>';
+        echo '<h2>🎉 Update Completed</h2>';
         echo '<div class="stats-summary">';
         echo '<div class="stat-item success"><span class="count">' . esc_html( $results['success_count'] ) . '</span><span class="label">Exitosos</span></div>';
         echo '<div class="stat-item error"><span class="count">' . esc_html( $results['error_count'] ) . '</span><span class="label">Errores</span></div>';
@@ -497,11 +497,11 @@ class WC_Template_Fixer_Updater_Interface {
                     'name' => $info['note'],
                     'risk' => $info['risk'],
                     'changes' => array(
-                        'Actualización a última versión de WooCommerce',
-                        'Preservación de personalizaciones uTech',
-                        'Backup automático creado',
+                        'Update to latest WooCommerce version',
+                        'Theme customizations preservation',
+                        'Automatic backup created',
                         'Integración con Bootstrap',
-                        'Text domain uTech preservado'
+                        'Theme text domain preserved'
                     )
                 );
             }

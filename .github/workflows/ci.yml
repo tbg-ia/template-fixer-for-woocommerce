@@ -1,0 +1,256 @@
+name: CI/CD Pipeline for Template Fixer for WooCommerce
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+  release:
+    types: [ published ]
+
+jobs:
+  # Job 1: Code Quality & Standards
+  code-quality:
+    name: Code Quality & WordPress Standards
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup PHP
+      uses: shivammathur/setup-php@v2
+      with:
+        php-version: '8.0'
+        extensions: mbstring, intl, zip
+        tools: composer, phpcs
+        
+    - name: Install dependencies
+      run: |
+        composer install --no-dev --optimize-autoloader
+        
+    - name: Install WordPress Coding Standards
+      run: |
+        composer global require "squizlabs/php_codesniffer=*"
+        composer global require wp-coding-standards/wpcs
+        composer global require phpcompatibility/phpcompatibility-wp
+        phpcs --config-set installed_paths ~/.composer/vendor/wp-coding-standards/wpcs,~/.composer/vendor/phpcompatibility/phpcompatibility-wp
+        
+    - name: Run PHPCS - WordPress Coding Standards
+      run: |
+        phpcs --standard=WordPress --extensions=php --ignore=*/vendor/*,*/node_modules/* .
+        
+    - name: Run PHPCS - PHP Compatibility
+      run: |
+        phpcs --standard=PHPCompatibilityWP --runtime-set testVersion 7.4- --extensions=php --ignore=*/vendor/*,*/node_modules/* .
+        
+    - name: Check for security issues
+      run: |
+        # Check for common security issues
+        grep -r "eval(" . --include="*.php" && exit 1 || echo "No eval() found"
+        grep -r "\$_GET\[" . --include="*.php" | grep -v "esc_\|sanitize_" && exit 1 || echo "GET variables properly sanitized"
+        grep -r "\$_POST\[" . --include="*.php" | grep -v "esc_\|sanitize_" && exit 1 || echo "POST variables properly sanitized"
+
+  # Job 2: WordPress Compatibility Testing
+  wordpress-compatibility:
+    name: WordPress Compatibility Testing
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        wordpress-version: ['6.0', '6.1', '6.2', '6.3', '6.4', '6.5', '6.6', '6.7', '6.8']
+        php-version: ['7.4', '8.0', '8.1', '8.2', '8.3']
+        
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup PHP
+      uses: shivammathur/setup-php@v2
+      with:
+        php-version: ${{ matrix.php-version }}
+        extensions: mbstring, intl, zip, gd, mysql
+        
+    - name: Setup WordPress test environment
+      run: |
+        # Install WordPress CLI
+        curl -O https://raw.githubusercontent.com/wp-cli/wp-cli/v2.8.1/utils/wp-completion.bash
+        curl -O https://raw.githubusercontent.com/wp-cli/wp-cli/v2.8.1/wp-cli.phar
+        chmod +x wp-cli.phar
+        sudo mv wp-cli.phar /usr/local/bin/wp
+        
+        # Setup MySQL
+        sudo systemctl start mysql
+        mysql -e 'CREATE DATABASE wordpress_test;' -uroot -proot
+        
+        # Download and setup WordPress
+        wp core download --version=${{ matrix.wordpress-version }}
+        wp config create --dbname=wordpress_test --dbuser=root --dbpass=root --dbhost=localhost
+        wp core install --url=http://localhost --title="Test Site" --admin_user=admin --admin_password=admin --admin_email=test@example.com
+        
+    - name: Install WooCommerce
+      run: |
+        wp plugin install woocommerce --activate
+        
+    - name: Install and activate plugin
+      run: |
+        cp -r . /tmp/wordpress/wp-content/plugins/template-fixer-for-woocommerce/
+        wp plugin activate template-fixer-for-woocommerce
+        
+    - name: Run basic functionality tests
+      run: |
+        # Test plugin activation
+        wp plugin list --status=active | grep template-fixer-for-woocommerce
+        
+        # Test admin page accessibility
+        wp eval "echo admin_url('admin.php?page=wc-template-fixer');"
+        
+        # Test scanner functionality
+        wp eval "
+        if (class_exists('WC_Template_Fixer_Scanner')) {
+            \$scanner = new WC_Template_Fixer_Scanner();
+            \$results = \$scanner->scan_outdated_templates();
+            echo 'Scanner working: ' . (is_array(\$results) ? 'YES' : 'NO') . PHP_EOL;
+        }
+        "
+
+  # Job 3: WooCommerce Compatibility Testing
+  woocommerce-compatibility:
+    name: WooCommerce Compatibility Testing
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        woocommerce-version: ['7.0.0', '7.5.0', '8.0.0', '8.5.0', '9.0.0', '9.5.0', '9.7.1']
+        
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup PHP
+      uses: shivammathur/setup-php@v2
+      with:
+        php-version: '8.0'
+        extensions: mbstring, intl, zip, gd, mysql
+        
+    - name: Setup WordPress and WooCommerce
+      run: |
+        # Install WordPress CLI
+        curl -O https://raw.githubusercontent.com/wp-cli/wp-cli/v2.8.1/wp-cli.phar
+        chmod +x wp-cli.phar
+        sudo mv wp-cli.phar /usr/local/bin/wp
+        
+        # Setup MySQL
+        sudo systemctl start mysql
+        mysql -e 'CREATE DATABASE wc_test;' -uroot -proot
+        
+        # Setup WordPress
+        wp core download
+        wp config create --dbname=wc_test --dbuser=root --dbpass=root --dbhost=localhost
+        wp core install --url=http://localhost --title="WC Test" --admin_user=admin --admin_password=admin --admin_email=test@example.com
+        
+        # Install specific WooCommerce version
+        wp plugin install woocommerce --version=${{ matrix.woocommerce-version }} --activate
+        
+    - name: Test plugin with WooCommerce version
+      run: |
+        cp -r . /tmp/wordpress/wp-content/plugins/template-fixer-for-woocommerce/
+        wp plugin activate template-fixer-for-woocommerce
+        
+        # Test WooCommerce integration
+        wp eval "
+        if (class_exists('WC_Template_Fixer_WC_Status_Integration')) {
+            echo 'WooCommerce integration: OK' . PHP_EOL;
+        } else {
+            echo 'WooCommerce integration: FAILED' . PHP_EOL;
+            exit(1);
+        }
+        "
+
+  # Job 4: Security Scanning
+  security-scan:
+    name: Security Vulnerability Scanning
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Run security scan with Psalm
+      uses: psalm/psalm-github-actions@release
+      with:
+        security_analysis: true
+        composer_require_dev: true
+        
+    - name: Check for hardcoded credentials
+      run: |
+        # Check for potential hardcoded passwords, API keys, etc.
+        grep -r -i "password.*=" . --include="*.php" | grep -v "password_hash\|wp_hash_password" && exit 1 || echo "No hardcoded passwords found"
+        grep -r -i "api_key.*=" . --include="*.php" && exit 1 || echo "No hardcoded API keys found"
+        grep -r -i "secret.*=" . --include="*.php" && exit 1 || echo "No hardcoded secrets found"
+
+  # Job 5: Build and Package
+  build-and-package:
+    name: Build and Package Plugin
+    runs-on: ubuntu-latest
+    needs: [code-quality, wordpress-compatibility, woocommerce-compatibility, security-scan]
+    if: github.event_name == 'release'
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        
+    - name: Install dependencies and build assets
+      run: |
+        if [ -f "package.json" ]; then
+          npm ci
+          npm run build
+        fi
+        
+    - name: Create plugin package
+      run: |
+        # Create clean package without development files
+        mkdir -p dist/template-fixer-for-woocommerce
+        
+        # Copy plugin files
+        cp -r includes/ dist/template-fixer-for-woocommerce/
+        cp -r assets/ dist/template-fixer-for-woocommerce/
+        cp -r languages/ dist/template-fixer-for-woocommerce/ 2>/dev/null || true
+        cp template-fixer-for-woocommerce.php dist/template-fixer-for-woocommerce/
+        cp readme.txt dist/template-fixer-for-woocommerce/
+        cp LICENSE dist/template-fixer-for-woocommerce/ 2>/dev/null || true
+        
+        # Create ZIP package
+        cd dist
+        zip -r template-fixer-for-woocommerce.zip template-fixer-for-woocommerce/
+        
+    - name: Upload release asset
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ github.event.release.upload_url }}
+        asset_path: ./dist/template-fixer-for-woocommerce.zip
+        asset_name: template-fixer-for-woocommerce.zip
+        asset_content_type: application/zip
+
+  # Job 6: Deploy to WordPress.org (if applicable)
+  deploy-wordpress-org:
+    name: Deploy to WordPress.org Repository
+    runs-on: ubuntu-latest
+    needs: [build-and-package]
+    if: github.event_name == 'release' && contains(github.event.release.tag_name, 'v')
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: WordPress Plugin Deploy
+      uses: 10up/action-wordpress-plugin-deploy@stable
+      env:
+        SVN_USERNAME: ${{ secrets.WP_ORG_USERNAME }}
+        SVN_PASSWORD: ${{ secrets.WP_ORG_PASSWORD }}
+        SLUG: template-fixer-for-woocommerce

@@ -78,7 +78,7 @@ class WC_Template_Fixer_Backup_Manager {
         
         // Restaurar archivo
         if ( copy( $backup_path, $theme_file ) ) {
-            // Registrar en logs
+            // Log to records
             wc_template_fixer_log(
                 $template_name,
                 'restore',
@@ -182,7 +182,7 @@ class WC_Template_Fixer_Backup_Manager {
     }
     
     /**
-     * Obtener estadísticas de backups
+     * Get backup statistics
      */
     public function get_backup_statistics() {
         $backups = $this->list_backups();
@@ -240,7 +240,7 @@ class WC_Template_Fixer_Backup_Manager {
             }
         }
         
-        // Registrar en logs
+        // Log to records
         wc_template_fixer_log(
             'full_backup',
             'backup',
@@ -285,7 +285,7 @@ class WC_Template_Fixer_Backup_Manager {
     }
     
     /**
-     * Obtener metadatos del backup
+     * Get backup metadata
      */
     private function get_backup_metadata( $backup_filename ) {
         $metadata_path = $this->get_metadata_path( $backup_filename );
@@ -299,7 +299,7 @@ class WC_Template_Fixer_Backup_Manager {
     }
     
     /**
-     * Obtener ruta del archivo de metadatos
+     * Get metadata file path
      */
     private function get_metadata_path( $backup_filename ) {
         return $this->backup_dir . str_replace( '.php', '.json', $backup_filename );
@@ -330,14 +330,14 @@ class WC_Template_Fixer_Backup_Manager {
     }
     
     /**
-     * Obtener ruta del template del tema
+     * Get theme template path
      */
     private function get_theme_template_path( $template_name ) {
         return get_stylesheet_directory() . '/woocommerce/' . $template_name;
     }
     
     /**
-     * Obtener versión del template
+     * Get template version
      */
     private function get_template_version( $file_path ) {
         if ( ! file_exists( $file_path ) ) {
@@ -353,7 +353,7 @@ class WC_Template_Fixer_Backup_Manager {
     }
     
     /**
-     * Obtener todos los templates del tema
+     * Get all theme templates
      */
     private function get_all_theme_templates() {
         $templates = array();
@@ -469,7 +469,7 @@ class WC_Template_Fixer_Backup_Manager {
     }
     
     /**
-     * Obtener URL de descarga de backup
+     * Get backup download URL
      */
     private function get_backup_download_url( $filename ) {
         return admin_url( 'admin-ajax.php?action=wc_template_fixer_download_backup&file=' . urlencode( $filename ) . '&nonce=' . wp_create_nonce( 'download_backup' ) );

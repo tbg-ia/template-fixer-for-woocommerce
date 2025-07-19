@@ -367,7 +367,7 @@
 }
 
 .template-checkbox input[disabled] + .template-info::after {
-    content: " ✅ YA ACTUALIZADO";
+    content: " ✅ ALREADY UPDATED";
     color: #00a32a;
     font-weight: bold;
     font-size: 12px;

@@ -1,106 +1,295 @@
 <?php
 /**
- * WooCommerce Template Scanner
- * 
+ * Template Scanner Class
+ *
+ * Scans for outdated WooCommerce templates using WooCommerce Status logic.
+ * Replicates exactly how WooCommerce Status detects outdated templates.
+ *
  * @package WC_Template_Fixer
+ * @since 1.0.0
  */
 
-if ( ! defined( 'ABSPATH' ) ) {
-    exit;
-}
+defined( 'ABSPATH' ) || exit;
 
+/**
+ * WC_Template_Fixer_Scanner class.
+ */
 class WC_Template_Fixer_Scanner {
-    
+
     /**
-     * Scan outdated templates
+     * Constructor.
+     */
+    public function __construct() {
+        // Constructor logic if needed
+    }
+
+    /**
+     * Scan for outdated templates using WooCommerce Status logic.
+     * This replicates exactly how WooCommerce Status detects outdated templates.
+     *
+     * @return array Array of outdated templates
      */
     public function scan_outdated_templates() {
+        // Get WooCommerce Status theme info (this contains all template override data)
+        $theme_info = $this->get_wc_status_theme_info();
         $outdated_templates = array();
-        $theme_templates = $this->get_theme_templates();
         
-        foreach ( $theme_templates as $template_path => $template_data ) {
-            $core_version = $this->get_core_template_version( $template_path );
-            $theme_version = $template_data['version'];
-            
-            if ( $core_version && version_compare( $theme_version, $core_version, '<' ) ) {
-                $outdated_templates[] = array(
-                    'name' => $template_path,
-                    'theme_version' => $theme_version,
-                    'core_version' => $core_version,
-                    'theme_file' => $template_data['file'],
-                    'core_file' => $this->get_core_template_path( $template_path ),
-                    'risk_level' => $this->calculate_risk_level( $theme_version, $core_version ),
-                    'last_modified' => filemtime( $template_data['file'] ),
-                    'size' => filesize( $template_data['file'] ),
-                    'has_customizations' => $this->detect_customizations( $template_data['file'] )
-                );
-            }
-        }
-        
-        // Sort by risk level
-        usort( $outdated_templates, function( $a, $b ) {
-            $risk_order = array( 'critical' => 4, 'high' => 3, 'medium' => 2, 'low' => 1 );
-            return $risk_order[$b['risk_level']] - $risk_order[$a['risk_level']];
-        });
-        
-        return $outdated_templates;
-    }
-    
-    /**
-     * Get theme templates
-     */
-    private function get_theme_templates() {
-        $templates = array();
-        $theme_template_dir = get_stylesheet_directory() . '/woocommerce/';
-        
-        if ( ! is_dir( $theme_template_dir ) ) {
-            return $templates;
-        }
-        
-        $iterator = new RecursiveIteratorIterator(
-            new RecursiveDirectoryIterator( $theme_template_dir, RecursiveDirectoryIterator::SKIP_DOTS )
-        );
-        
-        foreach ( $iterator as $file ) {
-            if ( $file->getExtension() === 'php' ) {
-                $filename = $file->getFilename();
-                
-                // Skip backup files and temporary files
-                if ( strpos( $filename, '.backup' ) !== false || 
-                     strpos( $filename, '.tmp' ) !== false ||
-                     strpos( $filename, '~' ) !== false ) {
-                    continue;
-                }
-                
-                $relative_path = str_replace( $theme_template_dir, '', $file->getPathname() );
-                $relative_path = str_replace( '\\', '/', $relative_path ); // Normalizar separadores
-                
-                $version = $this->extract_template_version( $file->getPathname() );
-                
-                if ( $version ) {
-                    $templates[$relative_path] = array(
-                        'version' => $version,
-                        'file' => $file->getPathname()
+        if ( isset( $theme_info['overrides'] ) && is_array( $theme_info['overrides'] ) ) {
+            foreach ( $theme_info['overrides'] as $override ) {
+                // Use the exact same logic as WooCommerce Status (lines 1367-1374)
+                if ( $override['core_version'] && ( empty( $override['version'] ) || version_compare( $override['version'], $override['core_version'], '<' ) ) ) {
+                    $theme_file_path = $this->get_full_theme_file_path( $override['file'] );
+                    
+                    $outdated_templates[] = array(
+                        'template' => $override['file'],
+                        'name' => $override['file'], // For backward compatibility
+                        'theme_version' => $override['version'] ?: 'No version',
+                        'core_version' => $override['core_version'],
+                        'status' => 'outdated',
+                        'theme_file' => $theme_file_path,
+                        'core_file' => $this->get_core_template_path_from_override( $override['file'] ),
+                        'risk_level' => $this->calculate_risk_level( $override['version'] ?: '0.0.0', $override['core_version'] ),
+                        'has_customizations' => $this->detect_customizations( $theme_file_path ),
+                        'last_modified' => file_exists( $theme_file_path ) ? filemtime( $theme_file_path ) : 0,
+                        'size' => file_exists( $theme_file_path ) ? filesize( $theme_file_path ) : 0
                     );
                 }
             }
         }
         
-        return $templates;
+        return $outdated_templates;
     }
-    
+
     /**
-     * Extract template version
+     * Get WooCommerce Status theme info.
+     * This replicates the exact data that WooCommerce Status uses.
+     *
+     * @return array Theme info from WooCommerce Status
      */
-    private function extract_template_version( $file_path ) {
-        $file_content = file_get_contents( $file_path );
+    public function get_wc_status_theme_info() {
+        // Use WooCommerce Status controller to get the exact same data
+        $status_controller = new WC_REST_System_Status_V2_Controller();
+        return $status_controller->get_theme_info();
+    }
+
+    /**
+     * Get full theme file path from relative path.
+     *
+     * @param string $relative_file Relative file path from WooCommerce Status
+     * @return string Full path to theme file
+     */
+    private function get_full_theme_file_path( $relative_file ) {
+        // WooCommerce Status returns paths relative to themes directory
+        return WP_CONTENT_DIR . '/themes/' . $relative_file;
+    }
+
+    /**
+     * Get core template path from override file.
+     *
+     * @param string $override_file Override file path
+     * @return string Core template path
+     */
+    private function get_core_template_path_from_override( $override_file ) {
+        // Extract just the template filename from the override path
+        $template_name = basename( $override_file );
         
-        // Search for @version pattern
-        if ( preg_match( '/@version\s+(\d+\.\d+\.\d+)/', $file_content, $matches ) ) {
-            return $matches[1];
+        // Handle special cases for product category/tag templates
+        if ( false !== strpos( $template_name, '-product_cat' ) || false !== strpos( $template_name, '-product_tag' ) ) {
+            $template_name = str_replace( '_', '-', $template_name );
         }
         
-        return false;
+        return WC()->plugin_path() . '/templates/' . $template_name;
+    }
+
+    /**
+     * Get theme templates using WooCommerce Status logic.
+     * This method replicates the exact template scanning logic from WooCommerce Status.
+     *
+     * @return array Array of theme templates
+     */
+    private function get_theme_templates() {
+        $templates = array();
+        
+        // Get all WooCommerce core template files (same as WooCommerce Status)
+        $scan_files = WC_Admin_Status::scan_template_files( WC()->plugin_path() . '/templates/' );
+        
+        // Include *-product_<cat|tag> templates for backwards compatibility (same as WooCommerce Status)
+        $scan_files[] = 'content-product_cat.php';
+        $scan_files[] = 'taxonomy-product_cat.php';
+        $scan_files[] = 'taxonomy-product_tag.php';
+        
+        foreach ( $scan_files as $file ) {
+            // Use the same template location logic as WooCommerce Status
+            $located = apply_filters( 'wc_get_template', $file, $file, array(), WC()->template_path(), WC()->plugin_path() . '/templates/' );
+            
+            $theme_file = false;
+            $theme_type = 'none';
+            
+            // Check in the same order as WooCommerce Status (lines 1343-1355)
+            if ( file_exists( $located ) ) {
+                $theme_file = $located;
+                $theme_type = 'located';
+            } elseif ( file_exists( get_stylesheet_directory() . '/' . $file ) ) {
+                $theme_file = get_stylesheet_directory() . '/' . $file;
+                $theme_type = 'child_root';
+            } elseif ( file_exists( get_stylesheet_directory() . '/' . WC()->template_path() . $file ) ) {
+                $theme_file = get_stylesheet_directory() . '/' . WC()->template_path() . $file;
+                $theme_type = 'child_wc';
+            } elseif ( file_exists( get_template_directory() . '/' . $file ) ) {
+                $theme_file = get_template_directory() . '/' . $file;
+                $theme_type = 'parent_root';
+            } elseif ( file_exists( get_template_directory() . '/' . WC()->template_path() . $file ) ) {
+                $theme_file = get_template_directory() . '/' . WC()->template_path() . $file;
+                $theme_type = 'parent_wc';
+            }
+            
+            if ( $theme_file ) {
+                // Use WooCommerce Status method to get version
+                $theme_version = WC_Admin_Status::get_file_version( $theme_file );
+                
+                $templates[$file] = array(
+                    'version' => $theme_version,
+                    'file' => $theme_file,
+                    'theme_type' => $theme_type
+                );
+            }
+        }
+        
+        return $templates;
+    }
+
+    /**
+     * Extract template version from file using WooCommerce Status method.
+     *
+     * @param string $file_path Path to the template file
+     * @return string|false Version string or false if not found
+     */
+    private function extract_template_version( $file_path ) {
+        // Use WooCommerce Status method directly
+        return WC_Admin_Status::get_file_version( $file_path );
+    }
+
+    /**
+     * Check if file content is a WooCommerce template.
+     *
+     * @param string $content File content
+     * @return bool True if it's a WooCommerce template
+     */
+    private function is_woocommerce_template( $content ) {
+        // Basic WooCommerce template detection
+        $indicators = array(
+            // Core WooCommerce identifiers
+            'woocommerce',
+            'WooCommerce',
+            '@package WooCommerce',
+            'WooCommerce\\Templates',
+            
+            // WooCommerce functions
+            'wc_get_template',
+            'wc_print_notices',
+            'wc_get_product',
+            'wc_get_order',
+            'wc_price',
+            'wc_format_decimal',
+            'wc_add_to_cart_message',
+            'wc_cart_totals_order_total_html',
+            'wc_get_cart_url',
+            'wc_get_checkout_url',
+            'wc_get_account_endpoint_url',
+            
+            // WooCommerce hooks and filters
+            'do_action( \'woocommerce_',
+            'apply_filters( \'woocommerce_',
+            'woocommerce_before_',
+            'woocommerce_after_',
+            'woocommerce_single_',
+            'woocommerce_archive_',
+            'woocommerce_cart_',
+            'woocommerce_checkout_',
+            'woocommerce_account_',
+            
+            // CSS classes and IDs
+            'class="woocommerce',
+            'id="woocommerce',
+            'woocommerce-',
+            'wc-',
+            'product-',
+            'cart-',
+            'checkout-',
+            'shop-',
+            
+            // WooCommerce objects and globals
+            'WC()->',
+            'wc_',
+            '$product',
+            '$order',
+            '$cart',
+            '$checkout',
+            '$customer',
+            'global $product',
+            'global $woocommerce',
+            
+            // WooCommerce conditional functions
+            'is_woocommerce()',
+            'is_product()',
+            'is_shop()',
+            'is_cart()',
+            'is_checkout()',
+            'is_account_page()',
+            'is_product_category()',
+            'is_product_tag()',
+            'is_product_taxonomy()',
+            'is_wc_endpoint_url()',
+            
+            // Template-specific indicators
+            'single-product',
+            'archive-product',
+            'content-product',
+            'cart-totals',
+            'mini-cart',
+            'product-thumbnails',
+            'add-to-cart',
+            'quantity-input',
+            'price-html',
+            'rating-html',
+            'review-meta',
+            'product-attributes',
+            'variation-add-to-cart',
+            
+            // Common WooCommerce template comments
+            'This template can be overridden by copying it to yourtheme/woocommerce/',
+            'HOWEVER, on occasion WooCommerce will need to update template files',
+            'maintain compatibility'
+        );
+        
+        // Count matches for better accuracy
+        $match_count = 0;
+        foreach ( $indicators as $indicator ) {
+            if ( stripos( $content, $indicator ) !== false ) {
+                $match_count++;
+                // If we find multiple indicators, it's definitely a WooCommerce template
+                if ( $match_count >= 2 ) {
+                    return true;
+                }
+            }
+        }
+        
+        // Single match might be enough for strong indicators
+        $strong_indicators = array(
+            '@package WooCommerce',
+            'WooCommerce\\Templates',
+            'This template can be overridden by copying it to yourtheme/woocommerce/',
+            'global $product',
+            'WC()->'
+        );
+        
+        foreach ( $strong_indicators as $indicator ) {
+            if ( stripos( $content, $indicator ) !== false ) {
+                return true;
+            }
+        }
+        
+        return $match_count > 0;
     }
     
     /**
@@ -110,17 +299,123 @@ class WC_Template_Fixer_Scanner {
         $core_file = $this->get_core_template_path( $template_path );
         
         if ( file_exists( $core_file ) ) {
-            return $this->extract_template_version( $core_file );
+            $version = $this->extract_template_version( $core_file );
+            if ( $version ) {
+                return $version;
+            }
         }
         
-        return false;
+        // If no core template found or no version in core template,
+        // use WooCommerce version as fallback for comparison
+        if ( function_exists( 'WC' ) && WC()->version ) {
+            $wc_version = WC()->version;
+            
+            // For custom theme templates that don't have core equivalents,
+            // assume they should be compatible with current WooCommerce version
+            // but add a small increment to encourage updates
+            $version_parts = explode( '.', $wc_version );
+            if ( count( $version_parts ) >= 2 ) {
+                // Increment minor version to encourage template updates
+                $version_parts[1] = (int)$version_parts[1] + 1;
+                return implode( '.', array_slice( $version_parts, 0, 3 ) );
+            }
+            
+            return $wc_version;
+        }
+        
+        // Ultimate fallback - assume a reasonably current version
+        return '8.0.0';
     }
     
     /**
      * Get core template path
      */
     private function get_core_template_path( $template_path ) {
-        return WC()->plugin_path() . '/templates/' . $template_path;
+        $core_template_path = WC()->plugin_path() . '/templates/' . $template_path;
+        
+        // If the direct path exists, return it
+        if ( file_exists( $core_template_path ) ) {
+            return $core_template_path;
+        }
+        
+        // For custom theme templates, try to find the closest core template
+        $fallback_mappings = array(
+            // Custom product templates -> core product templates
+            'content-product-deals.php' => 'content-product.php',
+            'content-product-list.php' => 'content-product.php',
+            'content-product-quick-view.php' => 'content-product.php',
+            'content-single-product-deal.php' => 'content-single-product.php',
+            'archive-product-2.php' => 'archive-product.php',
+            
+            // Custom cart templates -> core cart templates
+            'content-mini-cart.php' => 'cart/mini-cart.php',
+            'cart-shipping.php' => 'cart/cart-shipping.php',
+            'cart-totals.php' => 'cart/cart-totals.php',
+            
+            // Custom single product templates -> core single product templates
+            'sticky-product-info.php' => 'single-product/title.php',
+            'product-image.php' => 'single-product/product-image.php',
+            'product-thumbnails.php' => 'single-product/product-thumbnails.php',
+            
+            // Custom loop templates -> core loop templates
+            'add-to-compare.php' => 'loop/add-to-cart.php',
+            'add-to-wishlist.php' => 'loop/add-to-cart.php',
+            
+            // Custom global templates -> core global templates
+            'wrapper-start.php' => 'global/wrapper-start.php',
+            'wrapper-end.php' => 'global/wrapper-end.php',
+            'form-login.php' => 'global/form-login.php',
+            'quantity-input.php' => 'global/quantity-input.php',
+        );
+        
+        // Check if we have a fallback mapping
+        if ( isset( $fallback_mappings[ $template_path ] ) ) {
+            $fallback_path = WC()->plugin_path() . '/templates/' . $fallback_mappings[ $template_path ];
+            if ( file_exists( $fallback_path ) ) {
+                return $fallback_path;
+            }
+        }
+        
+        // Try to find a similar template by removing prefixes/suffixes
+        $base_name = basename( $template_path, '.php' );
+        $directory = dirname( $template_path );
+        
+        // Remove common prefixes/suffixes
+        $clean_patterns = array(
+            '/^content-/',
+            '/^archive-/',
+            '/^single-/',
+            '/-\d+$/',
+            '/-list$/',
+            '/-grid$/',
+            '/-deals?$/',
+            '/-quick-view$/',
+            '/-mini$/',
+        );
+        
+        foreach ( $clean_patterns as $pattern ) {
+            $clean_name = preg_replace( $pattern, '', $base_name );
+            if ( $clean_name !== $base_name ) {
+                $potential_paths = array(
+                    $directory . '/' . $clean_name . '.php',
+                    $clean_name . '.php',
+                    'content-' . $clean_name . '.php',
+                    'single-' . $clean_name . '.php',
+                    'archive-' . $clean_name . '.php'
+                );
+                
+                foreach ( $potential_paths as $potential_path ) {
+                    $full_path = WC()->plugin_path() . '/templates/' . $potential_path;
+                    if ( file_exists( $full_path ) ) {
+                        return $full_path;
+                    }
+                }
+            }
+        }
+        
+        // If no core template found, return the original path anyway
+        // This allows the version comparison to fail gracefully
+        return $core_template_path;
     }
     
     /**
@@ -154,6 +449,22 @@ class WC_Template_Fixer_Scanner {
     }
     
     /**
+     * Get template name from full path
+     */
+    private function get_template_name_from_path( $theme_file ) {
+        // Extract template name from theme file path
+        $theme_dir = get_template_directory();
+        $child_theme_dir = get_stylesheet_directory();
+        
+        // Remove theme directory paths
+        $template_name = str_replace( array( $theme_dir, $child_theme_dir ), '', $theme_file );
+        $template_name = str_replace( '/woocommerce/', '', $template_name );
+        $template_name = ltrim( $template_name, '/' );
+        
+        return $template_name;
+    }
+    
+    /**
      * Detect template customizations
      */
     private function detect_customizations( $theme_file ) {
@@ -169,7 +480,7 @@ class WC_Template_Fixer_Scanner {
         
         // Customization indicators
         $customization_indicators = array(
-            'utech',                    // Theme specific
+            get_template(),                    // Theme specific
             'bootstrap',                // CSS Framework
             'container',                // Specific classes
             'row',
@@ -216,15 +527,6 @@ class WC_Template_Fixer_Scanner {
         }
         
         return $all_templates;
-    }
-    
-    /**
-     * Get template name from path
-     */
-    private function get_template_name_from_path( $file_path ) {
-        $theme_wc_dir = get_stylesheet_directory() . '/woocommerce/';
-        $template_name = str_replace( $theme_wc_dir, '', $file_path );
-        return str_replace( '\\', '/', $template_name );
     }
     
     /**

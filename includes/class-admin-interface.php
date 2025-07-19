@@ -1595,7 +1595,7 @@ class WC_Template_Fixer_Admin_Interface {
         $preserve_customizations = isset( $_POST['preserve_customizations'] ) ? (bool) $_POST['preserve_customizations'] : true;
         
         if ( empty( $template_names ) ) {
-            // Obtener templates críticos automáticamente
+            // Get critical templates automatically
             $outdated = $this->scanner->scan_outdated_templates();
             $critical_templates = array();
             
@@ -1610,7 +1610,7 @@ class WC_Template_Fixer_Admin_Interface {
         
         $results = $this->updater->update_multiple_templates( $template_names, $preserve_customizations );
         
-        // Registrar éxito para mostrar notificación
+        // Log success to show notification
         if ( $results['success_count'] > 0 ) {
             set_transient( 'wc_template_fixer_update_success', array(
                 'count' => $results['success_count'],
@@ -1627,10 +1627,10 @@ class WC_Template_Fixer_Admin_Interface {
     public function integrate_with_legacy_updater() {
         // Verificar si existe el mu-plugin legacy
         if ( file_exists( WPMU_PLUGIN_DIR . '/wc-template-updater.php' ) ) {
-            // Registrar función para compatibilidad
+            // Register function for compatibility
             add_action( 'wp_ajax_wc_template_updater_legacy_bridge', array( $this, 'legacy_bridge_handler' ) );
             
-            // Agregar scripts para comunicación entre sistemas
+            // Add scripts for inter-system communication
             add_action( 'admin_footer', array( $this, 'add_legacy_bridge_script' ) );
         }
         
@@ -1743,7 +1743,7 @@ class WC_Template_Fixer_Admin_Interface {
             return;
         }
         
-        // Obtener estadísticas rápidas
+        // Get estadísticas rápidas
         $stats = $this->scanner->get_template_statistics();
         
         if ( $stats['outdated_templates'] > 0 ) {

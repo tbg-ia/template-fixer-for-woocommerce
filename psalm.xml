@@ -1,0 +1,104 @@
+<?xml version="1.0"?>
+<psalm
+    errorLevel="3"
+    resolveFromConfigFile="true"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns="https://getpsalm.org/schema/config"
+    xsi:schemaLocation="https://getpsalm.org/schema/config vendor/vimeo/psalm/config.xsd"
+    findUnusedBaselineEntry="true"
+    findUnusedCode="false"
+>
+    <projectFiles>
+        <directory name="." />
+        <ignoreFiles>
+            <directory name="vendor" />
+            <directory name="node_modules" />
+            <directory name="tests" />
+            <directory name="coverage" />
+            <directory name=".git" />
+        </ignoreFiles>
+    </projectFiles>
+
+    <issueHandlers>
+        <!-- WordPress specific suppressions -->
+        <UndefinedFunction>
+            <errorLevel type="suppress">
+                <!-- WordPress functions -->
+                <referencedFunction name="wp_*" />
+                <referencedFunction name="get_*" />
+                <referencedFunction name="is_*" />
+                <referencedFunction name="add_*" />
+                <referencedFunction name="remove_*" />
+                <referencedFunction name="do_*" />
+                <referencedFunction name="apply_*" />
+                <referencedFunction name="esc_*" />
+                <referencedFunction name="sanitize_*" />
+                <referencedFunction name="__" />
+                <referencedFunction name="_e" />
+                <referencedFunction name="esc_html__" />
+                <referencedFunction name="esc_html_e" />
+                <referencedFunction name="admin_url" />
+                <referencedFunction name="current_time" />
+                <referencedFunction name="wp_create_nonce" />
+                <referencedFunction name="check_ajax_referer" />
+                <referencedFunction name="wp_send_json_success" />
+                <referencedFunction name="wp_send_json_error" />
+                
+                <!-- WooCommerce functions -->
+                <referencedFunction name="WC" />
+                <referencedFunction name="wc_*" />
+            </errorLevel>
+        </UndefinedFunction>
+
+        <UndefinedClass>
+            <errorLevel type="suppress">
+                <!-- WordPress classes -->
+                <referencedClass name="WP_*" />
+                
+                <!-- WooCommerce classes -->
+                <referencedClass name="WC_*" />
+                <referencedClass name="WooCommerce" />
+            </errorLevel>
+        </UndefinedClass>
+
+        <UndefinedGlobalVariable>
+            <errorLevel type="suppress">
+                <!-- WordPress globals -->
+                <name name="$wpdb" />
+                <name name="$wp_filesystem" />
+                <name name="$woocommerce" />
+            </errorLevel>
+        </UndefinedGlobalVariable>
+
+        <!-- Security-focused rules -->
+        <TaintedInput>
+            <errorLevel type="error" />
+        </TaintedInput>
+
+        <TaintedSql>
+            <errorLevel type="error" />
+        </TaintedSql>
+
+        <TaintedShell>
+            <errorLevel type="error" />
+        </TaintedShell>
+
+        <TaintedInclude>
+            <errorLevel type="error" />
+        </TaintedInclude>
+
+        <TaintedEval>
+            <errorLevel type="error" />
+        </TaintedEval>
+
+        <!-- Type checking -->
+        <InvalidReturnType errorLevel="error" />
+        <InvalidArgument errorLevel="error" />
+        <PossiblyNullReference errorLevel="info" />
+        <PossiblyUndefinedVariable errorLevel="info" />
+    </issueHandlers>
+
+    <plugins>
+        <pluginClass class="Psalm\PhpUnitPlugin\Plugin"/>
+    </plugins>
+</psalm>

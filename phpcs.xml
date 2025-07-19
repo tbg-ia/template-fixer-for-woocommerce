@@ -1,0 +1,90 @@
+<?xml version="1.0"?>
+<ruleset name="Template Fixer for WooCommerce">
+    <description>PHP CodeSniffer configuration for Template Fixer for WooCommerce plugin</description>
+
+    <!-- Scan all files in directory -->
+    <file>.</file>
+
+    <!-- Exclude vendor and node_modules -->
+    <exclude-pattern>*/vendor/*</exclude-pattern>
+    <exclude-pattern>*/node_modules/*</exclude-pattern>
+    <exclude-pattern>*/.git/*</exclude-pattern>
+    <exclude-pattern>*/tests/*</exclude-pattern>
+    <exclude-pattern>*/coverage/*</exclude-pattern>
+
+    <!-- Include the WordPress-Extra standard -->
+    <rule ref="WordPress-Extra">
+        <!-- Allow short array syntax -->
+        <exclude name="Generic.Arrays.DisallowShortArraySyntax"/>
+        
+        <!-- Allow multiple assignments in one line for specific cases -->
+        <exclude name="Squiz.PHP.DisallowMultipleAssignments"/>
+    </rule>
+
+    <!-- Include WordPress-Docs standard -->
+    <rule ref="WordPress-Docs"/>
+
+    <!-- Include WordPress-VIP-Go standard for security -->
+    <rule ref="WordPress-VIP-Go">
+        <!-- Allow direct database queries for specific plugin functionality -->
+        <exclude name="WordPress.DB.DirectDatabaseQuery"/>
+    </rule>
+
+    <!-- Check for PHP compatibility -->
+    <rule ref="PHPCompatibilityWP"/>
+    
+    <!-- Set minimum PHP version -->
+    <config name="testVersion" value="7.4-"/>
+
+    <!-- Allow for WordPress specific globals -->
+    <rule ref="WordPress.WP.GlobalVariablesOverride">
+        <exclude-pattern>*/includes/class-template-updater.php</exclude-pattern>
+    </rule>
+
+    <!-- Custom rules for this plugin -->
+    <rule ref="WordPress.Security.EscapeOutput"/>
+    <rule ref="WordPress.Security.NonceVerification"/>
+    <rule ref="WordPress.Security.ValidatedSanitizedInput"/>
+    
+    <!-- Internationalization rules -->
+    <rule ref="WordPress.WP.I18n">
+        <properties>
+            <property name="text_domain" type="array">
+                <element value="template-fixer-for-woocommerce"/>
+            </property>
+        </properties>
+    </rule>
+
+    <!-- File naming conventions -->
+    <rule ref="WordPress.Files.FileName">
+        <properties>
+            <property name="strict_class_file_names" value="false"/>
+        </properties>
+    </rule>
+
+    <!-- Hook naming conventions -->
+    <rule ref="WordPress.NamingConventions.PrefixAllGlobals">
+        <properties>
+            <property name="prefixes" type="array">
+                <element value="wc_template_fixer"/>
+                <element value="WC_Template_Fixer"/>
+                <element value="template_fixer"/>
+            </property>
+        </properties>
+    </rule>
+
+    <!-- Show progress -->
+    <arg value="p"/>
+    
+    <!-- Show sniff codes -->
+    <arg value="s"/>
+    
+    <!-- Use colors -->
+    <arg name="colors"/>
+    
+    <!-- Show results with source codes -->
+    <arg value="--report=full"/>
+    
+    <!-- Cache results -->
+    <arg name="cache" value=".phpcs-cache"/>
+</ruleset>
